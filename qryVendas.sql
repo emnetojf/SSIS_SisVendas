@@ -1,0 +1,67 @@
+
+CREATE TABLE #TEMP (
+	[IdCli] [int] NOT NULL,
+	[IdVend] [int] NOT NULL,
+	[IdProd] [int] NOT NULL,
+	[IdPagto] [int] NOT NULL,
+	[dtVenda] [datetime2](7) NOT NULL,
+	[douPreco] [float] NOT NULL,
+ ) 
+GO
+
+
+-- DROP TABLE #TEMP
+-- DELETE FROM #TEMP
+--INSERT INTO Vendas
+SELECT * FROM #TEMP ORDER BY  [dtVenda]
+GO
+
+DECLARE
+	@CONT INT,	
+    @CLI INT = 1, 
+	@TOTCLI INT,
+	@PROD INT,
+	@TOTPROD INT,
+	@VENDEDOR INT,
+	@PAGTO INT,
+	@DTVENDA DATETIME,
+	@VLRPROD NUMERIC = 0.0
+ 
+BEGIN 
+
+	SET @TOTPROD = (SELECT COUNT(IdProd) FROM Produto)
+	SET @TOTCLI = (SELECT COUNT(IdCli) FROM Cliente)
+
+
+
+	WHILE(@CLI <= @TOTCLI)
+	BEGIN
+		SET @VENDEDOR = (SELECT dbo.fncRand(20)) + 1
+		SET @PAGTO = (SELECT dbo.fncRand(4)) + 1
+		SET @DTVENDA = DATEADD(DAY, dbo.fncRand(100), '2018-01-01')
+
+		SET @CONT = 1
+
+		WHILE(@CONT <= 4)
+		BEGIN
+
+			SET @PROD = (SELECT dbo.fncRand(@TOTPROD)) + 1
+			SET @VLRPROD = (SELECT [douPreco] FROM Produto WHERE IdProd = @PROD)
+			
+			INSERT INTO #TEMP
+				SELECT
+					@CLI AS CLIENTE,
+					@VENDEDOR AS VENDEDOR,
+					@PROD AS PRODUTO,
+					@PAGTO AS PAGTO,
+					@DTVENDA AS DTVENDA,
+					@VLRPROD AS VLPROD
+		
+			SET @CONT += 1
+
+		END
+		
+		SET @CLI += 1
+ 
+	END
+END
